@@ -1,6 +1,7 @@
 class TreeNode {
-    constructor(data) {
-        this.data = data;
+    constructor(value) {
+        this.value = value;
+        this.parent = null;
         this.left = null;
         this.right = null;
     }
@@ -11,99 +12,153 @@ class Tree {
         this.root = null;
     }
 
-    // Метод для вставки элемента в дерево
-    insert(data) {
-        const newNode = new TreeNode(data);
+    add(value) {
+        let newNode = new TreeNode(value);
+        //Создание корня
+        if (this.root == null) {
 
-        if (!this.root) {
             this.root = newNode;
-        } else {
-            this._insertNode(this.root, newNode);
+        }
+        //Добавление элементов
+        else {
+            this._add(this.root, newNode, this.root);
+
         }
     }
 
-    // Вспомогательный метод для рекурсивной вставки
-    _insertNode(node, newNode) {
-        if (newNode.data < node.data) {
-            if (!node.left) {
-                node.left = newNode;
-            } else {
-                this._insertNode(node.left, newNode);
+    _add(currentNode, newNode, parent, level) {
+        if (newNode.value > currentNode.value) {
+            if (currentNode.right == null) {
+                currentNode.right = newNode;
+                currentNode.right.parent = parent;
+                //console.log(currentNode.right.parent );
             }
-        } else {
-            if (!node.right) {
-                node.right = newNode;
-            } else {
-                this._insertNode(node.right, newNode);
+            else {
+
+                this._add(currentNode.right, newNode, currentNode.right, currentNode.level + Number(1));
+            }
+        }
+        else {
+            if (currentNode.left == null) {
+                currentNode.left = newNode;
+                currentNode.left.parent = parent;
+                //console.log(currentNode.left.parent = parent );
+            }
+            else {
+                this._add(currentNode.left, newNode, currentNode.left, currentNode.level + Number(1));
             }
         }
     }
 
-    // Метод для поиска элемента в дереве
-    search(data) {
-        return this._searchNode(this.root, data);
+    search(value) {
+
+        return this._search(this.root, value);
     }
 
-    // Вспомогательный метод для рекурсивного поиска
-    _searchNode(node, data) {
-        if (!node) {
-            return false;
+    delete(value) {
+
+        let deletedNode = this._search(this.root, value);
+        if (deletedNode) {
+            if (deletedNode.value > deletedNode.parent.value) {
+                deletedNode.parent.right = null;
+            }
+            else {
+                deletedNode.parent.left = null;
+            }
+
         }
 
-        if (data < node.data) {
-            return this._searchNode(node.left, data);
-        } else if (data > node.data) {
-            return this._searchNode(node.right, data);
-        } else {
-            return true;
+    }
+
+    //По хорошему надо пересобирать древо ¯\(°_o)/¯
+    change(value_orig, value_change) {
+        let changble = this._search(this.root, value_orig);
+        if (changble) {
+            changble.value = value_change;
         }
     }
 
-    // Метод для определения высоты дерева
-    height() {
-        return this._calculateHeight(this.root);
+    treeHeight() {
+        return this._calculateHeight(this.root)
     }
 
-    // Вспомогательный метод для рекурсивного расчета высоты
+
     _calculateHeight(node) {
-        if (!node) {
+        if (node === null) {
             return 0;
         }
 
-        const leftHeight = this._calculateHeight(node.left);
-        const rightHeight = this._calculateHeight(node.right);
+        let leftHeight = this._calculateHeight(node.left);
+        let rightHeight = this._calculateHeight(node.right);
 
         return Math.max(leftHeight, rightHeight) + 1;
     }
 
-    // Метод для обхода дерева в порядке "in-order" (для удобства отладки)
-    inOrderTraversal() {
-        const result = [];
-        this._inOrder(this.root, result);
-        return result;
+    _vertical() {
+        let height = 0;
+        let queue = [this.root]
+        for (let i = 0; i < queue.length; i++) {
+            if (queue[i].left) {
+
+            }
+        }
+
+
     }
 
-    // Вспомогательный метод для рекурсивного обхода "in-order"
-    _inOrder(node, result) {
-        if (node) {
-            this._inOrder(node.left, result);
-            result.push(node.data);
-            this._inOrder(node.right, result);
+    //Горизонатьно пробегаеся по древу
+    _horizontal() {
+        let height = 0;
+        let queue = [this.root];
+        for (let i = 0; i < queue.length; i++) {
+
+            if (queue[i].left) {
+                queue.push(queue[i].left)
+            }
+            if (queue[i].right) {
+                queue.push(queue[i].right)
+            }
+            height++;
+        }
+
+        return queue
+    }
+
+    //Поиск
+    _search(currentNode, value) {
+        //console.log (currentNode);
+        if (value > currentNode.value) {
+            if (currentNode.right == null) {
+                return false
+            }
+            else {
+                return this._search(currentNode.right, value);
+            }
+        }
+        else if (value < currentNode.value) {
+            if (currentNode.left == null) {
+                return false
+            }
+            else {
+                return this._search(currentNode.left, value);
+            }
+        }
+        else {
+            return currentNode;
         }
     }
 }
 
-// Пример использования
-const tree = new Tree();
-tree.insert(10);
-tree.insert(5);
-tree.insert(15);
-tree.insert(3);
-tree.insert(7);
-
-console.log(tree.inOrderTraversal()); // [3, 5, 7, 10, 15]
-
-console.log(tree.search(7)); // true
-console.log(tree.search(12)); // false
-
-console.log(tree.height()); // 3
+let tree = new Tree();
+tree.add(1);
+tree.add(10);
+tree.add(5);
+tree.add(4);
+tree.add(1);
+tree.add(12);
+//tree.change(1, 45);
+//tree.delete(4);
+console.log(tree);
+console.log(tree.search(10));
+console.log(tree.search(2));
+console.log(tree.treeHeight());
